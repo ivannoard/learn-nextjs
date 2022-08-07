@@ -1,4 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import Cookie from 'js-cookie'
+import Router from 'next/router'
+import { unauthPage } from '../../middlewares/authorizationPage'
+
+export async function getServerSideProps(ctx) {
+
+  await unauthPage(ctx)
+
+  return {
+    props: {}
+  }
+}
 
 export default function Login() {
 
@@ -8,6 +20,12 @@ export default function Login() {
   })
 
   const [status, setStatus] = useState('normal')
+
+  // useEffect(() => {
+  //   const cookie = Cookie.get('token')
+  //   console.log(cookie)
+  //   if (cookie) Router.push('/posts')
+  // }, [])
 
   const handleChange = (e) => {
     const inputName = e.target.getAttribute('name')
@@ -32,9 +50,12 @@ export default function Login() {
     if (!loginReq.ok) return setStatus('error ' + loginReq.status)
 
     const loginRes = await loginReq.json()
-    console.log(loginRes)
 
     setStatus('success')
+
+    Cookie.set('token', loginRes.token)
+
+    Router.push('/posts')
   }
 
   return (
